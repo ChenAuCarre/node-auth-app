@@ -49,11 +49,11 @@ jobs:
           context: .
           file: Dockerfile.multistage
           push: true
-          tags: ${{ vars.DOCKERHUB_USERNAME }}/node_auth_app:frontend
+          tags: ${{ vars.DOCKERHUB_USERNAME }}/node-auth-app:frontend
 
       - name: Build and push backend
         uses: docker/build-push-action@v6
         with:
           context: ./backend
           push: true
-          tags: ${{ vars.DOCKERHUB_USERNAME }}/node_auth_app:backend
+          tags: ${{ vars.DOCKERHUB_USERNAME }}/node-auth-app:backend
