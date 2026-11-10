@@ -1,9 +1,8 @@
-// UI layer: renders the pages and reacts to the forms. Business logic lives in auth.js.
+// UI layer: renders the pages and reacts to the forms. Users are stored by the backend.
 import "./style.css";
-import { AuthError, UserStore } from "./auth.js";
+import * as api from "./api.js";
 
-// App state: plain variables, no database, no backend.
-const users = new UserStore();
+// UI state only. Users now live in the database, behind the backend API.
 let currentUser = null; // username once logged in
 let flash = null;       // one-time message: { type: "error" | "success", text }
 
@@ -72,28 +71,25 @@ async function onSubmit(event, mode) {
   event.preventDefault();
   const form = event.target;
   const { username, password } = Object.fromEntries(new FormData(form));
-  form.querySelector("button").disabled = true; // hashing takes a moment
+  form.querySelector("button").disabled = true; // wait for the server
 
-  if (mode === "register") {
-    try {
-      const name = await users.register(username, password);
+  try {
+    if (mode === "register") {
+      const name = await api.register(username, password);
       flash = { type: "success", text: `Account created for ${name}. Please log in.` };
-      go("/login");
-    } catch (err) {
-      if (!(err instanceof AuthError)) throw err;
-      flash = { type: "error", text: err.message };
-      render();
+      return go("/login");
     }
-    return;
-  }
-
-  if (await users.login(username, password)) {
-    currentUser = UserStore.normalize(username);
-    go("/welcome");
-  } else {
+    const name = await api.login(username, password);
+    if (name) {
+      currentUser = name;
+      return go("/welcome");
+    }
     flash = { type: "error", text: "Invalid username or password" };
-    render();
+  } catch (err) {
+    if (!(err instanceof api.ApiError)) throw err;
+    flash = { type: "error", text: err.message };
   }
+  render();
 }
 
 function render() {
