@@ -16,7 +16,7 @@ const FORMS = {
     alt: 'Already have an account? <a href="#/login">Log in</a>',
   },
   login: {
-    title: "Log in",
+    title: "Hello",
     button: "Log in",
     autocomplete: "current-password",
     alt: 'New here? <a href="#/register">Create an account</a>',
